@@ -1,9 +1,27 @@
+package com.accountcreator
+
+import com.accountcreator.anticaptchaapi.solveCaptcha
+import io.reactivex.disposables.CompositeDisposable
+import com.accountcreator.riotapi.createAccount
+
 const val RECAPTCHA_URL = "https://signup.leagueoflegends.com/en/signup/index"
 const val RECAPTCHA_SITE_KEY = "6Lc3HAsUAAAAACsN7CgY9MMVxo2M09n_e4heJEiZ"
+const val PARALLEL = 5
 
 fun main(args: Array<String>) {
     val settings = promptSettings()
 
+    var counter = 0
+    val max = Math.max(settings.numberOfAccounts, PARALLEL)
+    val compositeDisposable = CompositeDisposable()
+
+    do {
+        val credentials = randomCredentials()
+        val disposable = solveCaptcha(settings.anticaptchaKey)
+                .flatMap { createAccount(credentials, it) }
+
+
+    } while (counter++ < max)
 }
 
 fun promptSettings(): Settings {
@@ -49,7 +67,7 @@ fun promptSettings(): Settings {
     } while (number == null)
 
     println()
-    println("Settings: ${region} ${fileName} ${key} ${number}, is that correct? (y/n)")
+    println("com.accountcreator.Settings: ${region} ${fileName} ${key} ${number}, is that correct? (y/n)")
     print("> ")
 
     input = readLine()
