@@ -1,27 +1,31 @@
 package com.accountcreator
 
 import com.accountcreator.anticaptchaapi.solveCaptcha
-import io.reactivex.disposables.CompositeDisposable
 import com.accountcreator.riotapi.createAccount
 
 const val RECAPTCHA_URL = "https://signup.leagueoflegends.com/en/signup/index"
 const val RECAPTCHA_SITE_KEY = "6Lc3HAsUAAAAACsN7CgY9MMVxo2M09n_e4heJEiZ"
-const val PARALLEL = 5
+
 
 fun main(args: Array<String>) {
     val settings = promptSettings()
 
     var counter = 0
-    val max = Math.max(settings.numberOfAccounts, PARALLEL)
-    val compositeDisposable = CompositeDisposable()
 
     do {
         val credentials = randomCredentials()
-        val disposable = solveCaptcha(settings.anticaptchaKey)
-                .flatMap { createAccount(credentials, it) }
-
-
-    } while (counter++ < max)
+        solveCaptcha(settings.anticaptchaKey)
+                .flatMap { createAccount(credentials, settings, it) }
+                .toObservable()
+                .blockingSubscribe({
+                    counter++
+                    println("Account $it ${credentials.name} created.")
+                    writeToAccountsFile(credentials, settings.fileName)
+                    println("$counter of ${settings.numberOfAccounts} done.")
+                }, {
+                    println(it)
+                })
+    } while (counter < settings.numberOfAccounts)
 }
 
 fun promptSettings(): Settings {
@@ -67,7 +71,7 @@ fun promptSettings(): Settings {
     } while (number == null)
 
     println()
-    println("com.accountcreator.Settings: ${region} ${fileName} ${key} ${number}, is that correct? (y/n)")
+    println("Settings: Region $region Filename $fileName AnticaptchaKey $key Number $number, is that correct? (y/n)")
     print("> ")
 
     input = readLine()

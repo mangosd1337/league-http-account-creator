@@ -1,7 +1,7 @@
 package com.accountcreator
 
-import java.io.File
+import java.nio.file.Paths
 
 fun writeToAccountsFile(credentials: Credentials, fileName: String) {
-    File(fileName).appendText("${credentials.name}:${credentials.password}\n")
+    Paths.get(fileName).toFile().appendText("${credentials.name}:${credentials.password}\n")
 }
