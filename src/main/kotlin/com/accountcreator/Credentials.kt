@@ -5,25 +5,48 @@ import java.io.File
 data class Credentials(val name: String, val password: String, val email: String, val dateOfBirth: String)
 
 fun randomCredentials(suffixLen: Int = 2, passwordMinLen: Int = 11, passwordMaxLen: Int = 15): Credentials {
-    val names = File("src/main/resources/firstnames.txt").readLines()
-    val adjectives = File("src/main/resources/adjectives.txt").readLines()
-    val letters = ('a'..'z') + ('A'..'Z')
-    val numbers = 0..9
-    val special = "!§$%&/()=?+#-"
+    val names = File("resources/firstnames.txt").readLines()
+    val adjectives = File("resources/adjectives.txt").readLines()
 
-    val name = (adjectives.takeRandomStr() + names.takeRandomStr() + numbers.takeRandomStr() + letters.takeRandomStr(suffixLen))
+    val letters = "abcdefghijklmnoprstuvwxyzABCDEFGHIJKLMNOPRSTUVXYZ"
+    val numbers = "0123456789"
+    val special = "!§$%&()=?"
+
+
+    val name = (adjectives.takeRandomStr() + names.takeRandomStr() + letters.takeRandom(suffixLen))
             .replace("\\s".toRegex(), "")
 
-    val password = (letters + numbers + special).takeRandomStr(
-            (Math.random() * (passwordMaxLen - passwordMinLen + 1) + passwordMinLen).toInt()) + "6"
 
-    val email = (letters + numbers).takeRandomStr(7) + "@" + (letters + numbers).takeRandomStr(12) + ".com"
+    var password = ""
+    while (password.none { it.isDigit() }) {
+        val passwordLength = (Math.random() * (passwordMaxLen - passwordMinLen + 1)).toInt() + passwordMinLen
+        password = (letters + numbers + special).takeRandom(passwordLength)
+    }
+
+    val email = names.takeRandomStr().replace("\\s".toRegex(), "") +
+            "@" + letters.takeRandom((Math.random() * 5).toInt() + 7) + ".com"
+
     val year = (Math.random() * 15).toInt() + 1980
     val month = (Math.random() * 11).toInt() + 1
     val day = (Math.random() * 29).toInt() + 1
 
-    return Credentials(name, password, email, "$year-$month-$day")
+    val birthDate = String.format("%4d-%02d-%02d", year, month, day)
+
+    return Credentials(name, password, email, birthDate)
 }
+
+fun String.takeRandom(n: Int): String {
+    var ret = ""
+    for (i in 1..n) {
+        ret += this.takeRandom()
+    }
+    return ret
+}
+
+fun String.takeRandom(): Char {
+    return this[(Math.random() * this.length).toInt()]
+}
+
 
 fun <T> Iterable<T>.takeRandom(n: Int = 1): List<T> {
     val list = toList()

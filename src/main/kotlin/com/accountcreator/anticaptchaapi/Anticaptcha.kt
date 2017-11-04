@@ -2,6 +2,7 @@ package com.accountcreator.anticaptchaapi
 
 import com.accountcreator.RECAPTCHA_SITE_KEY
 import com.accountcreator.RECAPTCHA_URL
+import com.accountcreator.getOkHttpClient
 import com.google.gson.JsonParser
 import com.squareup.okhttp.MediaType
 import com.squareup.okhttp.OkHttpClient
@@ -43,7 +44,7 @@ private const val GET_TASK_RESULT_JSON_FORMAT = """
 fun solveCaptcha(apiKey: String): Single<String> {
     return Single.fromCallable {
 
-        var response = OkHttpClient().newCall(Request.Builder()
+        var response = getOkHttpClient().newCall(Request.Builder()
                 .url(CREATE_TASK_URL)
                 .post(RequestBody.create(MediaType.parse("application/json"),
                         CREATE_TASK_JSON_FORMAT.format(apiKey, RECAPTCHA_URL, RECAPTCHA_SITE_KEY)))
@@ -65,7 +66,7 @@ fun solveCaptcha(apiKey: String): Single<String> {
             do {
                 Thread.sleep(checkDelay)
 
-                response = OkHttpClient().newCall(Request.Builder()
+                response = getOkHttpClient().newCall(Request.Builder()
                         .url(GET_TASK_RESULT_URL)
                         .post(RequestBody.create(MediaType.parse("application/json"),
                                 GET_TASK_RESULT_JSON_FORMAT.format(apiKey, taskId)))

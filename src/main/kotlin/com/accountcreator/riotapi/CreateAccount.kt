@@ -2,6 +2,7 @@ package com.accountcreator.riotapi
 
 import com.accountcreator.Credentials
 import com.accountcreator.Settings
+import com.accountcreator.getOkHttpClient
 import com.google.gson.JsonParser
 import com.squareup.okhttp.MediaType
 import com.squareup.okhttp.OkHttpClient
@@ -26,14 +27,17 @@ private const val CREATE_ACC_JSON_FORMAT = """
 
 fun createAccount(credentials: Credentials, settings: Settings, captchaToken: String): Single<String> {
     return Single.fromCallable {
-        val response = OkHttpClient().newCall(Request.Builder()
+        val requestStr = CREATE_ACC_JSON_FORMAT.format(credentials.email, credentials.name, credentials.password,
+                credentials.dateOfBirth, settings.region, captchaToken)
+
+        val requestBody = RequestBody.create(MediaType.parse("application/json"), requestStr)
+
+        val response = getOkHttpClient().newCall(Request.Builder()
                 .url(CREATE_ACC_URL)
                 .header("origin", "https://signup.euw.leagueoflegends.com")
                 .header("referer", "https://signup.euw.leagueoflegends.com/en/signup/index")
                 .header("user-agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/61.0.3163.100 Safari/537.36")
-                .post(RequestBody.create(MediaType.parse("application/json"),
-                        CREATE_ACC_JSON_FORMAT.format(credentials.email, credentials.name, credentials.password,
-                                credentials.dateOfBirth, settings.region, captchaToken)))
+                .post(requestBody)
                 .build()
         ).execute()
 
