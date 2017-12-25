@@ -10,7 +10,7 @@ const val RECAPTCHA_SITE_KEY = "6Lc3HAsUAAAAACsN7CgY9MMVxo2M09n_e4heJEiZ"
 
 
 fun main(args: Array<String>) {
-    println("Zack's account creator version 0.1\n\n")
+    println("Zack's account creator version 0.2 wilpsa edition\n\n")
 
     val settings = promptSettings()
 
@@ -42,7 +42,9 @@ fun main(args: Array<String>) {
 }
 
 fun promptSettings(): Settings {
-    println("EUW OR NA:")
+    val plus1List = listOf("euw", "na", "br", "jp", "tr")
+
+    println("EUW, NA, EUNE, JP, LAN, LAS, OCE, TR, RU or BR:")
     print("> ")
 
     var region = ""
@@ -50,12 +52,29 @@ fun promptSettings(): Settings {
     var input: String?
     do {
         input = readLine()?.toLowerCase()
-        if (input == "euw") {
-            region = "EUW1"
-        } else if (input == "na") {
-            region = "NA1"
+
+        if (plus1List.contains(input)) {
+            region = input!!.toUpperCase() + "1"
+            break
+        } else if (input == "eune") {
+            region = "EUN1"
+            break
+        } else if (input == "lan") {
+            region = "LA1"
+            break
+        } else if (input == "las") {
+            region = "LA2"
+            break
+        } else if (input == "oce") {
+            region = "OC1"
+            break
+        } else if (input == "ru") {
+            region = "RU"
+            break
+        } else {
+            print("Invalid region $input, try again.")
         }
-    } while (input == null || (input != "euw" && input != "na"))
+    } while (true)
 
     println("Filename (leave empty for accounts.txt):")
     print("> ")

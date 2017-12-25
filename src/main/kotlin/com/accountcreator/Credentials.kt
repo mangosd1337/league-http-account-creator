@@ -1,10 +1,14 @@
 package com.accountcreator
 
 import java.io.File
+import java.security.SecureRandom
 
 data class Credentials(val name: String, val password: String, val email: String, val dateOfBirth: String)
+val random = SecureRandom()
 
 fun randomCredentials(suffixLen: Int = 2, passwordMinLen: Int = 11, passwordMaxLen: Int = 15): Credentials {
+
+
     val names = File("resources/firstnames.txt").readLines()
     val adjectives = File("resources/adjectives.txt").readLines()
 
@@ -19,16 +23,16 @@ fun randomCredentials(suffixLen: Int = 2, passwordMinLen: Int = 11, passwordMaxL
 
     var password = ""
     while (password.none { it.isDigit() }) {
-        val passwordLength = (Math.random() * (passwordMaxLen - passwordMinLen + 1)).toInt() + passwordMinLen
+        val passwordLength = (random.nextDouble() * (passwordMaxLen - passwordMinLen + 1)).toInt() + passwordMinLen
         password = (letters + numbers + special).takeRandom(passwordLength)
     }
 
     val email = names.takeRandomStr().replace("\\s".toRegex(), "") +
-            "@" + letters.takeRandom((Math.random() * 5).toInt() + 7) + ".com"
+            "@" + letters.takeRandom((random.nextDouble() * 5).toInt() + 7) + ".com"
 
-    val year = (Math.random() * 15).toInt() + 1980
-    val month = (Math.random() * 11).toInt() + 1
-    val day = (Math.random() * 29).toInt() + 1
+    val year = (random.nextDouble() * 15).toInt() + 1980
+    val month = (random.nextDouble() * 11).toInt() + 1
+    val day = (random.nextDouble() * 29).toInt() + 1
 
     val birthDate = String.format("%4d-%02d-%02d", year, month, day)
 
@@ -44,7 +48,7 @@ fun String.takeRandom(n: Int): String {
 }
 
 fun String.takeRandom(): Char {
-    return this[(Math.random() * this.length).toInt()]
+    return this[(random.nextDouble() * this.length).toInt()]
 }
 
 
@@ -56,7 +60,7 @@ fun <T> Iterable<T>.takeRandom(n: Int = 1): List<T> {
     val ret = mutableListOf<T>()
 
     while (i-- > 0) {
-        ret += list[(Math.random() * list.size).toInt()]
+        ret += list[(random.nextDouble() * list.size).toInt()]
     }
 
     return ret
